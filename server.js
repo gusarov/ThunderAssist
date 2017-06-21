@@ -31,7 +31,7 @@ app.use(serveFavicon(__dirname + '/public/favicon.ico'));
 
 app.listen(process.env.PORT);
 
-app.get('/api/githook', function (req, res) {
+app.post('/api/githook', function (req, res) {
   console.log(JSON.stringify(req));
   res.send('OK...');
   // require('./autodeploy.js');
