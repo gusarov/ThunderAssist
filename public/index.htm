@@ -1,11 +1,66 @@
-index.htm
-<canvas id='gc'></canvas>
-<script>
-    window.onload = function() {
-        setInterval(loop, 1000/15);
-    }
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="SHORTCUT ICON" href="favicon.ico"/>
+        <link rel="icon" href="favicon.ico"/>
+		<link href="main.css" rel="stylesheet" type="text/css" />
+        <title>Thunder Assist</title>
+        <meta name="google-signin-client_id" content="781089348927-0k9f6akj56kt2974c9qv0drcuqhiru4u.apps.googleusercontent.com">
+        <meta name="google-signin-scope" content="https://sites.google.com/feeds/">
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+    </head>
+    <body>
+        Wellcome to Thunder Assist!<br/>
+        Login:<br/><br/>
 
-    function loop() {
-        
-    }
-</script>
+        <div class="g-signin2" data-onsuccess="onSignIn" data-google-signin-scope="asd" data-theme="dark"></div>
+
+
+        <a href="#" onclick="signOut();">Sign out</a><br/>
+        <a href="#" onclick="GoogleAuth.disconnect();">Revoke</a><br/>
+        <a href="#" onclick="grant();">Upgrade To Contacts</a><br/>
+
+<br/>
+<img id="avatar" />
+
+        <script>
+            window.onload = function() {
+                /*
+                gapi.load('auth2', function(){
+                    gapi.auth2.init({
+                        fetch_basic_profile: false,
+                        scope: ['profile', 'openid']
+                    });
+                });
+                */
+            }
+            function grant() {
+
+            }
+            function signOut() {
+                var auth2 = gapi.auth2.getAuthInstance();
+                auth2.signOut().then(function () {
+                  console.log('User signed out.');
+                  auth2.disconnect();
+                  //gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse();
+                });
+            }
+            function onSignIn(googleUser) {
+                // Useful data for your client-side scripts:
+                var profile = googleUser.getBasicProfile();
+                console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+                console.log('Full Name: ' + profile.getName());
+                console.log('Given Name: ' + profile.getGivenName());
+                console.log('Family Name: ' + profile.getFamilyName());
+                console.log("Image URL: " + profile.getImageUrl());
+                console.log("Email: " + profile.getEmail());
+
+                document.getElementById('avatar').setAttribute("src", profile.getImageUrl());
+
+                // The ID token you need to pass to your backend:
+                var id_token = googleUser.getAuthResponse().id_token;
+                console.log("ID Token: " + id_token);
+            }
+        </script>
+    </body>
+</html>
