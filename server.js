@@ -4,6 +4,8 @@
 var fs = require('fs');
 var express = require('express');
 var serveFavicon = require('serve-favicon');
+//var createWebhookHandler = require('github-webhook-handler');
+
 // var socketio = require('socket.io');
 var mongoDb = require('mongodb');
 // var assert = require('assert');
@@ -20,6 +22,8 @@ if (fs.existsSync('./secret/secret.js')) {
 	console.log('no overrides');
 }
 
+//var webhookHandler = createWebhookHandler({ path: '/githook', secret: process.env.secure_hook });
+
 var app = express();
  
 var options = {
@@ -32,9 +36,19 @@ app.use(serveFavicon(__dirname + '/public/favicon.ico'));
 app.listen(process.env.PORT);
 
 app.post('/api/githook', function (req, res) {
-  console.log(JSON.stringify(req));
+  
+  function hasError (msg) {
+    res.writeHead(400, { 'content-type': 'application/json' });
+    res.end(JSON.stringify({ error: msg }));
+  }
+
+  var sig   = req.headers['x-hub-signature'];
+  if (!sig)
+      return hasError('No X-Hub-Signature found on request');
+
   res.send('OK...');
-  // require('./autodeploy.js');
+  console.log("OK...");
+  require('./autodeploy.js');
 });
 
 app.get('/', function (req, res) {
