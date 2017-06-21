@@ -14,9 +14,8 @@ if (process.env.PORT === undefined) {
 
 // read secure part that may contain some specific overrides and not stored in source control (connection strings, passwords)
 if (fs.existsSync('./secret/secret.js')) {
-	console.log('execute overrides');
-	var secretOverride = require('./secret/secret');
-	secretOverride.do();
+	console.log('execute overrides...');
+	require('./secret/secret')();
 } else {
 	console.log('no overrides');
 }
@@ -31,6 +30,12 @@ app.use(express.static(__dirname + '/public', options));
 app.use(serveFavicon(__dirname + '/public/favicon.ico'));
 
 app.listen(process.env.PORT);
+
+app.get('/api/githook', function (req, res) {
+  console.log(JSON.stringify(req));
+  res.send('OK...');
+  // require('./autodeploy.js');
+});
 
 app.get('/', function (req, res) {
   res.send('PROBLEM Express1: /');
