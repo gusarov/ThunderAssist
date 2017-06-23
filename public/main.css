@@ -1,0 +1,17 @@
+.header_strip_tag {
+    font: normal normal bold 46px/1.2em Enriqueta,serif;
+    color: #606060;
+    letter-spacing: normal;
+    line-height: 1.2em;
+    float: left;
+}
+
+.header {
+    width: 100%;
+}
+.header_strip {
+    align-self: center;
+    width: 80%;
+    display: inline-block;
+    align-content: stretch;
+}

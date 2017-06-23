@@ -1,28 +1,39 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="SHORTCUT ICON" href="favicon.ico"/>
-        <link rel="icon" href="favicon.ico"/>
+        <link rel="SHORTCUT ICON" href="favicon.ico" />
+        <link rel="icon" href="favicon.ico" />
 		<link href="main.css" rel="stylesheet" type="text/css" />
         <title>Thunder Assist</title>
         <meta name="google-signin-client_id" content="521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com">
         <meta name="google-signin-scope" content="">
         <script src="https://apis.google.com/js/platform.js" async defer></script>
+        <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Anton:n,b,i,bi|Basic:n,b,i,bi|Caudex:n,b,i,bi|Chelsea+Market:n,b,i,bi|Corben:n,b,i,bi|EB+Garamond:n,b,i,bi|Enriqueta:n,b,i,bi|Forum:n,b,i,bi|Fredericka+the+Great:n,b,i,bi|Jockey+One:n,b,i,bi|Josefin+Slab:n,b,i,bi|Jura:n,b,i,bi|Kelly+Slab:n,b,i,bi|Marck+Script:n,b,i,bi|Lobster:n,b,i,bi|Mr+De+Haviland:n,b,i,bi|Niconne:n,b,i,bi|Noticia+Text:n,b,i,bi|Overlock:n,b,i,bi|Patrick+Hand:n,b,i,bi|Play:n,b,i,bi|Sarina:n,b,i,bi|Signika:n,b,i,bi|Spinnaker:n,b,i,bi|Monoton:n,b,i,bi|Sacramento:n,b,i,bi|Cookie:n,b,i,bi|Raleway:n,b,i,bi|Open+Sans+Condensed:300:n,b,i,bi|Amatic+SC:n,b,i,bi|Cinzel:n,b,i,bi|Sail:n,b,i,bi|Playfair+Display:n,b,i,bi|Libre+Baskerville:n,b,i,bi|&amp;subset=latin-ext,cyrillic,japanese,korean,arabic,hebrew,latin" id="font_googleFonts" />
     </head>
     <body>
+        <div>
+            <div class='header'>
+                <div class='header_strip'>
+                    <div class='header_strip_tag'>Thunder </div>
+                    <svg height="80" width="53" class='header_strip_tag'>
+                        <circle cx="28" cy="30" r="20" stroke="#606060" stroke-width="2" fill="red" />
+                    </svg>
+                    <div class='header_strip_tag'> Assist</div>
+                </div>
+            </div>
+           Login:<br/><br/>
 
-        Welcome to Thunder Assist!<br/>
-        Login:<br/><br/>
-
-        <div class="g-signin2" data-onsuccess="onSignIn" data-google-signin-scope="asd" data-theme="dark" ></div>
+            <div class="g-signin2" data-onsuccess="onSignIn" data-google-signin-scope="asd" data-theme="dark" ></div>
 
 
-        <a href="#" onclick="signOut();">Sign out</a><br/>
-        <a href="#" onclick="GoogleAuth.disconnect();">Revoke</a><br/>
-        <a href="#" onclick="grant();">Upgrade To Contacts</a><br/>
+            <a href="#" onclick="signOut();">Sign out</a><br/>
+            <a href="#" onclick="GoogleAuth.disconnect();">Revoke</a><br/>
+            <a href="#" onclick="grant();">Upgrade To Contacts</a><br/>
 
-<br/>
-<img id="avatar" />
+            <br/>
+            <img id="avatar" />
+        </div>
+      
 
         <script>
             window.onload = function() {
