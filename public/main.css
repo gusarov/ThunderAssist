@@ -1,3 +1,26 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+.wrapper {
+    min-height: 100%; 
+    height: 100%; 
+    width: 100%; 
+    align-content: center;
+    align-self: center;
+
+    background: radial-gradient(farthest-side at 50% 40%, #aaaacc 15%, white 85%);
+}
+
+.center {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
 .header_strip_tag {
     font: normal normal bold 46px/1.2em Enriqueta,serif;
     color: #606060;
