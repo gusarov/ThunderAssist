@@ -36,7 +36,11 @@ app.use(serveFavicon(__dirname + '/public/favicon.ico'));
 app.listen(process.env.PORT);
 
 app.post('/api/githook', function (req, res) {
-  
+  update(req, res);
+});
+
+function update(req, res) {
+ 
   function hasError (msg) {
     res.writeHead(400, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ error: msg }));
@@ -44,12 +48,12 @@ app.post('/api/githook', function (req, res) {
 
   var sig   = req.headers['x-hub-signature'];
   if (!sig)
-      return hasError('No X-Hub-Signature found on request');
+      return hasError('access denied'); // No X-Hub-Signature found on request
 
   res.send('OK...');
   console.log("OK...");
   require('./autodeploy.js');
-});
+}
 
 app.get('/', function (req, res) {
   res.send('PROBLEM Express1: /');
