@@ -6,9 +6,9 @@ var express = require('express');
 var serveFavicon = require('serve-favicon');
 //var createWebhookHandler = require('github-webhook-handler');
 
-// var socketio = require('socket.io');
+var socketio = require('socket.io');
 var mongoDb = require('mongodb');
-// var assert = require('assert');
+var assert = require('assert');
 
 if (process.env.PORT === undefined) {
   process.env.PORT = 3000;
@@ -22,6 +22,23 @@ if (fs.existsSync('./secret/secret.js')) {
 	console.log('no overrides');
 }
 
+// environment
+var mongo_constr = process.env.CUSTOMCONNSTR_mongo;
+// var deployment_branch = (process.env.deployment_branch === undefined ? '_dev_machine' : process.env.deployment_branch);
+// var test = (process.env.deployment_branch === undefined ? 'test' : process.env.deployment_branch).includes('test');
+var mongo_layer = process.env.mongo_layer === undefined ? 0 : process.env.mongo_layer | 0;
+
+
+// Connect
+var mongoClient = mongoDb.MongoClient;
+
+mongoClient.connect(mongo_constr, function (err, db) {
+	assert.equal(null, err);
+	console.log('Mongo connected');
+	// db.collection('users').createIndex({_layer: 1});
+	db.close();
+});
+
 //var webhookHandler = createWebhookHandler({ path: '/githook', secret: process.env.secure_hook });
 
 var app = express();
@@ -33,7 +50,44 @@ var options = {
 app.use(express.static(__dirname + '/public', options));
 app.use(serveFavicon(__dirname + '/public/favicon.ico'));
 
-app.listen(process.env.PORT);
+var server = app.listen(process.env.PORT, function () {
+	var port = server.address().port;
+	console.log('Server running at port %s', port);
+});
+
+var io = socketio(server);
+// var redis = require('socket.io-redis');
+// io.adapter(redis({ host: 'localhost', port: 6379 }));
+
+//io.set('origins', '*');
+
+io.on('connection', function(client) {
+	console.log('IO connected');
+
+	mongoClient.connect(mongo_constr, function (err, db) {
+		assert.equal(null, err);
+
+  	client.emit('update', {a: 100});
+
+    /*    
+		// report
+		findUsers(db, function(users) {
+			for (var key in users) { 
+				client.emit('update', users[key]);
+			}
+			db.close();
+		});
+    */
+	});
+
+	client.on('report', function(data) {
+		console.log('Reported ' + JSON.stringify(data));
+		client.broadcast.emit('update', data);
+		client.emit('update', data);
+	});
+
+});
+
 
 app.post('/api/githook', function (req, res) {
   update(req, res);
@@ -76,4 +130,3 @@ app.get('/server.js/test', function (req, res) {
 app.get('/api/test', function (req, res) {
   res.send('Express3: /api/test: ' + process.env.PORT);
 });
-
