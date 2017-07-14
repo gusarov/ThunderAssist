@@ -1,7 +1,112 @@
 <!DOCTYPE html>
 <html>
-	<head>
-	</head>
-	<body>
-	</body>
+<head>
+  <script src='https://cdn.rawgit.com/konvajs/konva/1.6.3/konva.min.js'></script>
+  <meta charset='utf-8'>
+  <title></title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id='container'></div>
+  <script>
+    'use strict';
+    var models = localStorage.models == null
+        ? { rects: []}
+        : JSON.parse(localStorage.models);
+
+    //console.log("models: " + JSON.stringify(models));
+    
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+
+    if (models.rects.length <= 0) {
+        // starting set
+        var rect = {
+              x: 1
+            , y: 1
+            , w: 50
+            , h: 50
+            , _id: newGuid
+        };
+        models.rects.push(rect);
+        // models.rects[rect._id] = rect;
+    }
+
+    var stage = new Konva.Stage({
+        container: 'container',
+        width: width,
+        height: height,
+    });
+    var layer = new Konva.Layer();
+
+    function ensureViews() {
+        models.rects.forEach(function(element) {
+            if (element.__view == null) {
+                var rect = element.__view = new Konva.Rect({
+                    x: element.x,
+                    y: element.y,
+                    width: element.w,
+                    height: element.h,
+                    fill: 'green',
+                    stroke: 'black',
+                    draggable: true,
+                    strokeWidth: 4,
+                });
+                // add cursor styling
+                rect.on('mouseover', function() {
+                    document.body.style.cursor = 'pointer';
+                });
+                rect.on('mouseout', function() {
+                    document.body.style.cursor = 'default';
+                });
+                rect.on('dblclick', function() {
+                    var rect = {
+                        x: 1
+                        , y: 1
+                        , w: 50
+                        , h: 50
+                        , _id: newGuid
+                    };
+                    models.rects.push(rect);
+                    ensureViews();
+                });
+                rect.on('dragend', function(o) {
+                    console.log(o);
+                    console.log(typeof rect.x());
+                    console.log(rect.x());
+                    element.x = rect.x();
+                    element.y = rect.y();
+                    localStorage.models = JSON.stringify(models, replacer);
+                    console.log(localStorage.models);
+                });
+                // add the shape to the layer
+                layer.add(rect);
+            }
+        }, this);
+    }
+    ensureViews();
+
+    // add the layer to the stage
+    stage.add(layer);
+
+    function replacer(key, value)
+    {
+        if (key=="__view") return undefined;
+        else return value;
+    }
+
+    function newGuid() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+  </script>
+</body>
 </html>
