@@ -1,6 +1,8 @@
 var wrapper;
-var signedIn = true;
+var signedIn = false;
 var started = false;
+var models;
+var layer;
 
 window.onload = function() {
     wrapper = document.getElementById('wrapper');
@@ -95,18 +97,37 @@ function onSignIn(googleUser) {
 }
 
 function ready() {
-    if(!started && signedIn){
+    if (!started && signedIn) {
         started = true;
         //
         // first we need to create a stage
         var stage = new Konva.Stage({
             container: 'wrapper',   // id of container <div>
-            width: 500,
-            height: 500
+            width: window.innerWidth,
+            height: window.innerHeight
         });
         // then create layer
-        var layer = new Konva.Layer();
+        layer = new Konva.Layer();
 
+        if (localStorage.haveInitialSync === true) {
+// A: user been there recently and have local replica of the data
+//     Start immediately and initiate background sync
+            models = JSON.parse(localStorage.models);
+            ensureView();
+            syncronize(function() {
+                //
+            });
+        } else {
+// B: no local data
+//     Wait for initial sync
+            syncronize(function() {
+                localStorage.haveInitialSync = true;
+                ensureView();
+            });
+        }
+
+
+        /*
         // create our shape
         var circle = new Konva.Circle({
             x: stage.getWidth() / 2,
@@ -136,8 +157,100 @@ function ready() {
             opacity : 0.5
         });
         layer.add(pentagon);
+        */
 
         // add the layer to the stage
         stage.add(layer);
     }
+}
+
+function syncronize(callback) {
+
+
+
+    if (localStorage.models != null) {
+        models = JSON.parse(localStorage.models);
+    } else {
+        models = {rects: []};
+    }
+    // ...
+
+
+    if (models.rects.length <= 0) {
+        // starting set
+        var rect = {
+              x: 1
+            , y: 1
+            , w: 50
+            , h: 50
+            , _id: newGuid
+        };
+        models.rects.push(rect);
+        // models.rects[rect._id] = rect;
+    }
+
+    console.log("syncronize - callback");
+    callback();
+}
+
+function ensureView() {
+    models.rects.forEach(function(element) {
+        if (element.__view == null) {
+            var rect = element.__view = new Konva.Rect({
+                x: element.x,
+                y: element.y,
+                width: element.w,
+                height: element.h,
+                fill: 'green',
+                stroke: 'black',
+                draggable: true,
+                strokeWidth: 4,
+            });
+            // add cursor styling
+            rect.on('mouseover', function() {
+                document.body.style.cursor = 'pointer';
+            });
+            rect.on('mouseout', function() {
+                document.body.style.cursor = 'default';
+            });
+            rect.on('dblclick', function() {
+                var rect = {
+                    x: 1
+                    , y: 1
+                    , w: 50
+                    , h: 50
+                    , _id: newGuid
+                };
+                models.rects.push(rect);
+                ensureView();
+                
+            });
+            rect.on('dragend', function(o) {
+                console.log(o);
+                console.log(typeof rect.x());
+                console.log(rect.x());
+                element.x = rect.x();
+                element.y = rect.y();
+                localStorage.models = JSON.stringify(models, replacer);
+                console.log(localStorage.models);
+            });
+            // add the shape to the layer
+            layer.add(rect);
+        }
+    }, this);
+
+
+}
+
+function replacer(key, value)
+{
+    if (key=="__view") return undefined;
+    else return value;
+}
+
+function newGuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
