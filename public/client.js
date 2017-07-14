@@ -1,4 +1,6 @@
 var wrapper;
+var signedIn = true;
+var started = false;
 
 window.onload = function() {
     wrapper = document.getElementById('wrapper');
@@ -8,8 +10,9 @@ window.onload = function() {
 		console.log('retrieved ' + data.a + ' mode='+socket.io.engine.transport.name);
 	});
 
-	wrapper.addEventListener('mousemove', mousemove);
+	// wrapper.addEventListener('mousemove', mousemove);
 
+    ready();
     /*
 <div class='header'>
     <div class='header_strip'>
@@ -55,7 +58,9 @@ function mousemove(e) {
 function grant() {
 
 }
+
 function signOut() {
+    signedIn = false;
     var auth2 = gapi.auth2.getAuthInstance();
     auth2.signOut().then(function () {
         console.log('User signed out.');
@@ -63,8 +68,11 @@ function signOut() {
         //gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse();
     });
 }
+
 function onSignIn(googleUser) {
     // Useful data for your client-side scripts:
+    signedIn = true;
+    ready();
     var profile = googleUser.getBasicProfile();
     console.log("ID: " + profile.getId()); // Don't send this directly to your server!
     console.log('Full Name: ' + profile.getName());
@@ -73,11 +81,63 @@ function onSignIn(googleUser) {
     console.log("Image URL: " + profile.getImageUrl());
     console.log("Email: " + profile.getEmail());
 
+    /*
     document.getElementById('avatar').setAttribute("src", profile.getImageUrl());
     document.getElementById('avatar').setAttribute("style", "visibility: visible");
     document.getElementById('g-signin2').setAttribute("style", "visibility: collapse");
+    */
+
+    document.getElementById('center').setAttribute("style", "visibility: collapse");
 
     // The ID token you need to pass to your backend:
     var id_token = googleUser.getAuthResponse().id_token;
     console.log("ID Token: " + id_token);
+}
+
+function ready() {
+    if(!started && signedIn){
+        started = true;
+        //
+        // first we need to create a stage
+        var stage = new Konva.Stage({
+            container: 'wrapper',   // id of container <div>
+            width: 500,
+            height: 500
+        });
+        // then create layer
+        var layer = new Konva.Layer();
+
+        // create our shape
+        var circle = new Konva.Circle({
+            x: stage.getWidth() / 2,
+            y: stage.getHeight() / 2,
+            radius: 70,
+            fill: 'red',
+            stroke: 'black',
+            draggable: true,
+            strokeWidth: 4
+        });
+
+        // add the shape to the layer
+        layer.add(circle);
+
+        var pentagon = new Konva.RegularPolygon({
+            x: stage.getWidth() / 2,
+            y: stage.getHeight() / 2,
+            sides: 5,
+            radius: 70,
+            fill: 'red',
+            stroke: 'black',
+            strokeWidth: 4,
+            shadowOffsetX : 20,
+            shadowOffsetY : 25,
+            shadowBlur : 40,
+            draggable: true,
+            opacity : 0.5
+        });
+        layer.add(pentagon);
+
+        // add the layer to the stage
+        stage.add(layer);
+    }
 }

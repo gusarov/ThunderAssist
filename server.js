@@ -108,16 +108,19 @@ function update(req, res) {
   console.log("OK...");
   require('./autodeploy.js');
 }
-
+/*
 app.get('/', function (req, res) {
   res.send('PROBLEM Express1: /');
 });
+
 app.get('/a', function (req, res) {
   res.send('PROBLEM Express1: /a');
 });
+*/
 app.get('/api', function (req, res) {
   res.send('Express2: /api');
 });
+
 /*
 app.get('/server.js', function (req, res) {
   res.send('Express2: /server.js');
