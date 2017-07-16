@@ -6,9 +6,9 @@ var layer;
 
 window.onload = function() {
     wrapper = document.getElementById('wrapper');
-    socket = io('http://' + window.location.hostname + ':' +window.location.port + '/');
+    socket = io('http://' + window.location.hostname + ':' + window.location.port + '/');
 
-	socket.on('update', function(data){
+	socket.on('update', function(data) {
 		console.log('retrieved ' + data.a + ' mode='+socket.io.engine.transport.name);
 	});
 
@@ -223,7 +223,7 @@ function ensureView() {
                 };
                 models.rects.push(rect);
                 ensureView();
-                
+
             });
             rect.on('dragend', function(o) {
                 console.log(o);
