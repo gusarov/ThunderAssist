@@ -15,6 +15,8 @@ window.onload = function() {
 	});
 
 	// divkonva.addEventListener('mousemove', mousemove);
+	document.addEventListener('keydown', doc_keyDown, false);
+
 
 	ready();
 	/*
@@ -40,6 +42,14 @@ window.onload = function() {
 	*/
 }
 
+function doc_keyDown(e) {
+	if (!signedIn && !started) {
+		if (e.keyCode == 81) { // Q
+			signInDemo();
+		}
+	}
+}
+
 function getMousePos(evt) {
 	var rect = divkonva.getBoundingClientRect();
 	return {
@@ -61,6 +71,40 @@ function mousemove(e) {
 
 function grant() {
 
+}
+
+function signInDemo() {
+	console.log('sign in demo');
+	signedIn = true;
+	onSignIn({
+		getBasicProfile: function () {
+			return {
+				getId: function() {
+					return 1;
+				},
+				getName: function() {
+					return 'demo';
+				},
+				getGivenName: function() {
+					return 'john';
+				},
+				getFamilyName: function() {
+					return 'smith';
+				},
+				getEmail: function() {
+					return 'demo@demo.de';
+				},
+				getImageUrl: function() {
+					return '';
+				},
+			};
+		},
+		getAuthResponse: function() {
+			return {
+				id_token: '#demo_token#',
+			};
+		},
+	});
 }
 
 function signOut() {
@@ -92,9 +136,12 @@ function onSignIn(googleUser) {
 	document.getElementById('g-signin2').setAttribute('style', 'visibility: collapse');
 	*/
 
+	document.getElementById('bar').className = 'top_right';
+	document.getElementById('all').classList.remove('bgg');
+
 	document.getElementById('g-signin2').style.display = 'none';
+	document.getElementById('signInDemo').style.display = 'none';
 	document.getElementById('signOut').style.display = 'inline';
-	// document.getElementsById('signOut').style['z-index'] = 100;
 
 
 	// The ID token you need to pass to your backend:

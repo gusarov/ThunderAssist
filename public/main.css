@@ -11,9 +11,6 @@ html, body {
 	width: 100%; 
 	align-content: center;
 	align-self: center;
-/*
-	background: radial-gradient(farthest-side at 50% 50%, #aaaacc 15%, white 85%);
-*/
 }
 
 #konva {
@@ -38,7 +35,11 @@ html, body {
 */
 }
 
-/*
+
+.bgg {
+	background: radial-gradient(farthest-side at 50% 50%, #aaaacc 15%, white 85%);
+}
+
 .center {
 	position: absolute;
 	top: 50%;
@@ -46,6 +47,7 @@ html, body {
 	transform: translateX(-50%) translateY(-50%);
 }
 
+/*
 
 
 .header_strip_tag {
