@@ -11,7 +11,7 @@ var mongoDb = require('mongodb');
 var assert = require('assert');
 
 if (process.env.PORT === undefined) {
-  process.env.PORT = 3000;
+	process.env.PORT = 3000;
 }
 
 // read secure part that may contain some specific overrides and not stored in source control (connection strings, passwords)
@@ -44,7 +44,7 @@ mongoClient.connect(mongo_constr, function (err, db) {
 var app = express();
  
 var options = {
-  index: "index.htm"
+	index: "index.htm"
 };
 
 app.use(express.static(__dirname + '/public', options));
@@ -55,7 +55,19 @@ var server = app.listen(process.env.PORT, function () {
 	console.log('Server running at port %s', port);
 });
 
-var io = socketio(server);
+var io = socketio(server, {
+	transports: [ 'websocket' ],
+});
+
+/*
+io.configure(function() {  
+		io.set('transports', [ 'websocket' ]);
+		if (process.env.IISNODE_VERSION) {
+				io.set('resource', '/dante/socket.io');
+		}
+});
+*/
+
 // var redis = require('socket.io-redis');
 // io.adapter(redis({ host: 'localhost', port: 6379 }));
 
@@ -67,9 +79,9 @@ io.on('connection', function(client) {
 	mongoClient.connect(mongo_constr, function (err, db) {
 		assert.equal(null, err);
 
-  	client.emit('update', {a: 100});
+		client.emit('update', {a: 100});
 
-    /*    
+		/*    
 		// report
 		findUsers(db, function(users) {
 			for (var key in users) { 
@@ -77,7 +89,7 @@ io.on('connection', function(client) {
 			}
 			db.close();
 		});
-    */
+		*/
 	});
 
 	client.on('report', function(data) {
@@ -90,46 +102,46 @@ io.on('connection', function(client) {
 
 
 app.post('/api/githook', function (req, res) {
-  update(req, res);
+	update(req, res);
 });
 
 function update(req, res) {
  
-  function hasError (msg) {
-    res.writeHead(400, { 'content-type': 'application/json' });
-    res.end(JSON.stringify({ error: msg }));
-  }
+	function hasError (msg) {
+		res.writeHead(400, { 'content-type': 'application/json' });
+		res.end(JSON.stringify({ error: msg }));
+	}
 
-  var sig   = req.headers['x-hub-signature'];
-  if (!sig)
-      return hasError('access denied'); // No X-Hub-Signature found on request
+	var sig   = req.headers['x-hub-signature'];
+	if (!sig)
+			return hasError('access denied'); // No X-Hub-Signature found on request
 
-  res.send('OK...');
-  console.log("OK...");
-  require('./autodeploy.js');
+	res.send('OK...');
+	console.log("OK...");
+	require('./autodeploy.js');
 }
 /*
 app.get('/', function (req, res) {
-  res.send('PROBLEM Express1: /');
+	res.send('PROBLEM Express1: /');
 });
 
 app.get('/a', function (req, res) {
-  res.send('PROBLEM Express1: /a');
+	res.send('PROBLEM Express1: /a');
 });
 */
 app.get('/api', function (req, res) {
-  res.send('Express2: /api');
+	res.send('Express2: /api');
 });
 
 /*
 app.get('/server.js', function (req, res) {
-  res.send('Express2: /server.js');
+	res.send('Express2: /server.js');
 });
 
 app.get('/server.js/test', function (req, res) {
-  res.send('Express3: /server.js/test: ' + process.env.PORT);
+	res.send('Express3: /server.js/test: ' + process.env.PORT);
 });
 */
 app.get('/api/test', function (req, res) {
-  res.send('Express3: /api/test: ' + process.env.PORT);
+	res.send('Express3: /api/test: ' + process.env.PORT);
 });

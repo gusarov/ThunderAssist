@@ -8,7 +8,9 @@ var layer;
 window.onload = function() {
 	divall = document.getElementById('all');
 	divkonva = document.getElementById('konva');
-	socket = io(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/');
+	socket = io(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/', {
+		transports: [ 'websocket' ],
+	});
 
 	socket.on('update', function(data) {
 		console.log('retrieved ' + data.a + ' mode='+socket.io.engine.transport.name);
