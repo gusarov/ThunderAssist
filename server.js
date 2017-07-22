@@ -79,7 +79,7 @@ io.on('connection', function(client) {
 	mongoClient.connect(mongo_constr, function (err, db) {
 		assert.equal(null, err);
 
-		client.emit('update', {a: 100});
+		// client.emit('update', {a: 100});
 
 		/*    
 		// report

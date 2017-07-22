@@ -4,6 +4,7 @@ var signedIn = false;
 var started = false;
 var models;
 var layer;
+var socket;
 
 window.onload = function() {
 	divall = document.getElementById('all');
@@ -13,7 +14,7 @@ window.onload = function() {
 	});
 
 	socket.on('update', function(data) {
-		console.log('retrieved ' + data.a + ' mode='+socket.io.engine.transport.name);
+		console.log('retrieved ' + JSON.stringify(data) + ' mode='+socket.io.engine.transport.name);
 	});
 
 	// divkonva.addEventListener('mousemove', mousemove);
@@ -287,6 +288,10 @@ function ensureView() {
 				element.x = rect.x();
 				element.y = rect.y();
 				localStorage.models = JSON.stringify(models, replacer);
+
+				// quick report
+				socket.emit('report', {x:element.x, y:element.y});
+
 				console.log(localStorage.models);
 			});
 			// add the shape to the layer
