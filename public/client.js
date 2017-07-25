@@ -5,8 +5,34 @@ var started = false;
 var models;
 var layer;
 var socket;
+var id_token;
+var googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
+
+/*
+gapi.load('auth2', function() {
+	console.log('!! initing');
+	auth2 = gapi.auth2.init({
+		client_id: googleClientId,
+		fetch_basic_profile: false,
+		scope: 'profile'
+	});
+	console.log('!! inited');
+
+	// Sign the user in, and then retrieve their ID.
+	auth2.signIn().then(function() {
+		var profile = auth2.currentUser.get();
+		console.log('qID: ' + profile.getId()); // Don't send this directly to your server!
+		console.log('qFull Name: ' + profile.getName());
+		console.log('qGiven Name: ' + profile.getGivenName());
+		console.log('qFamily Name: ' + profile.getFamilyName());
+		console.log('qImage URL: ' + profile.getImageUrl());
+		console.log('qEmail: ' + profile.getEmail());
+	});
+});
+*/
 
 window.onload = function() {
+
 	divall = document.getElementById('all');
 	divkonva = document.getElementById('konva');
 	socket = io(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/', {
@@ -126,12 +152,16 @@ function onSignIn(googleUser) {
 	signedIn = true;
 	ready();
 	var profile = googleUser.getBasicProfile();
-	console.log('ID: ' + profile.getId()); // Don't send this directly to your server!
-	console.log('Full Name: ' + profile.getName());
-	console.log('Given Name: ' + profile.getGivenName());
-	console.log('Family Name: ' + profile.getFamilyName());
-	console.log('Image URL: ' + profile.getImageUrl());
-	console.log('Email: ' + profile.getEmail());
+	if (profile != null) {
+		console.log('ID: ' + profile.getId()); // Don't send this directly to your server!
+		console.log('Full Name: ' + profile.getName());
+		console.log('Given Name: ' + profile.getGivenName());
+		console.log('Family Name: ' + profile.getFamilyName());
+		console.log('Image URL: ' + profile.getImageUrl());
+		console.log('Email: ' + profile.getEmail());
+	} else {
+		console.log('nonbasic: ' + JSON.stringify(googleUser));
+	}
 
 	/*
 	document.getElementById('avatar').setAttribute('src', profile.getImageUrl());
@@ -148,7 +178,7 @@ function onSignIn(googleUser) {
 
 
 	// The ID token you need to pass to your backend:
-	var id_token = googleUser.getAuthResponse().id_token;
+	id_token = googleUser.getAuthResponse().id_token;
 	console.log('ID Token: ' + id_token);
 }
 
@@ -290,7 +320,11 @@ function ensureView() {
 				localStorage.models = JSON.stringify(models, replacer);
 
 				// quick report
-				socket.emit('report', {x:element.x, y:element.y});
+				socket.emit('report', {
+					x:element.x,
+					y:element.y,
+					id_token: id_token
+				});
 
 				console.log(localStorage.models);
 			});

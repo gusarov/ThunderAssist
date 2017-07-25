@@ -9,6 +9,10 @@ var serveFavicon = require('serve-favicon');
 var socketio = require('socket.io');
 var mongoDb = require('mongodb');
 var assert = require('assert');
+var auth = new (require('google-auth-library'));
+
+var googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
+var authClient = new auth.OAuth2(googleClientId, '', '');
 
 if (process.env.PORT === undefined) {
 	process.env.PORT = 3000;
@@ -94,8 +98,35 @@ io.on('connection', function(client) {
 
 	client.on('report', function(data) {
 		console.log('Reported ' + JSON.stringify(data));
-		client.broadcast.emit('update', data);
-		client.emit('update', data);
+		var sender_token = data.id_token;
+		data.id_token = undefined;
+
+		//console.log('sender_token='+sender_token);
+		//console.log('googleClientId='+googleClientId);
+		
+		authClient.verifyIdToken(
+			sender_token,
+			googleClientId,
+			function(e, login) {
+				var payload = login.getPayload();
+				var aud = payload['aud'];
+				var userid = payload['sub'];
+				//var iat = payload['iat'];
+				//var exp = payload['exp'];
+				// var domain = payload['hd'];
+				console.log('PAYLOAD');
+				console.log(JSON.stringify(payload));
+				//console.log('iat = ' + new Date(iat).toLocaleDateString());
+				//console.log('exp = ' + new Date(exp).toLocaleDateString());
+
+				if (aud==googleClientId && userid>0) {
+					// continue
+					client.broadcast.emit('update', data);
+					client.emit('update', data);
+				}
+			}
+		);
+
 	});
 
 });
