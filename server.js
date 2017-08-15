@@ -13,10 +13,12 @@ if (fs.existsSync('./secret/secret.js')) {
 
 console.log('Load other libraries...');
 
-console.log(' Express');
+console.log(' express');
 var express = require('express');
-console.log(' Favicon');
+console.log(' serve-favicon');
 var serveFavicon = require('serve-favicon');
+console.log(' serve-index');
+var directory = require('serve-index');
 //var createWebhookHandler = require('github-webhook-handler');
 
 console.log(' socket.io');
@@ -72,6 +74,7 @@ var options = {
 };
 
 app.use(express.static(__dirname + '/public', options));
+app.use('/files', directory(__dirname + '/public/files', {'icons': true}));
 app.use(serveFavicon(__dirname + '/public/favicon.ico'));
 
 var server = app.listen(process.env.PORT, function () {
