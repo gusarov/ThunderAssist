@@ -253,14 +253,17 @@ function ready() {
 function syncronize(callback) {
 
 
-
-	if (localStorage.models != null) {
-		models = JSON.parse(localStorage.models);
-	} else {
-		models = {rects: []};
+	if (models == null) {
+		if (localStorage.models != null) {
+			models = JSON.parse(localStorage.models);
+		} else {
+			models = {rects: []};
+		}
 	}
-	// ...
 
+	// send all new
+	// get all new
+	//io.
 
 	if (models.rects.length <= 0) {
 		// starting set
@@ -274,6 +277,8 @@ function syncronize(callback) {
 		models.rects.push(rect);
 		// models.rects[rect._id] = rect;
 	}
+
+	// ...
 
 	console.log('syncronize - callback');
 	callback();

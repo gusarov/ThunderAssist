@@ -2,21 +2,6 @@
 
 // references
 var fs = require('fs');
-var express = require('express');
-var serveFavicon = require('serve-favicon');
-//var createWebhookHandler = require('github-webhook-handler');
-
-var socketio = require('socket.io');
-var mongoDb = require('mongodb');
-var assert = require('assert');
-var auth = new (require('google-auth-library'));
-
-var googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
-var authClient = new auth.OAuth2(googleClientId, '', '');
-
-if (process.env.PORT === undefined) {
-	process.env.PORT = 3000;
-}
 
 // read secure part that may contain some specific overrides and not stored in source control (connection strings, passwords)
 if (fs.existsSync('./secret/secret.js')) {
@@ -26,22 +11,57 @@ if (fs.existsSync('./secret/secret.js')) {
 	console.log('no overrides');
 }
 
+console.log('Load other libraries...');
+
+console.log(' Express');
+var express = require('express');
+console.log(' Favicon');
+var serveFavicon = require('serve-favicon');
+//var createWebhookHandler = require('github-webhook-handler');
+
+console.log(' socket.io');
+var socketio = require('socket.io');
+// var mongoClient = require('mongodb').MongoClient;
+console.log(' mongoUtils');
+var mongo = require('./mongoUtils');
+console.log(' assert');
+var assert = require('assert');
+console.log(' google-auth-library');
+var auth = new (require('google-auth-library'));
+
+var googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
+var authClient = new auth.OAuth2(googleClientId, '', '');
+
+if (process.env.PORT === undefined) {
+	process.env.PORT = 3000;
+}
+
 // environment
+var mongo_dbname = 'ta';
 var mongo_constr = process.env.CUSTOMCONNSTR_mongo;
 // var deployment_branch = (process.env.deployment_branch === undefined ? '_dev_machine' : process.env.deployment_branch);
 // var test = (process.env.deployment_branch === undefined ? 'test' : process.env.deployment_branch).includes('test');
 var mongo_layer = process.env.mongo_layer === undefined ? 0 : process.env.mongo_layer | 0;
 
 
-// Connect
-var mongoClient = mongoDb.MongoClient;
-
-mongoClient.connect(mongo_constr, function (err, db) {
+// Test Connection
+/*
+mongoClient.connect(mongo_constr, function (err, conn) {
 	assert.equal(null, err);
 	console.log('Mongo connected');
 	// db.collection('users').createIndex({_layer: 1});
-	db.close();
+	conn.close();
 });
+*/
+
+console.log('Connecting mongo...');
+
+mongo.connect(err=>{
+	console.log('Mongo connected. Database = ' + mongo.getDb().databaseName);
+	var n = mongo.getDb().collection('users').count();
+	n.then(n=>console.log('Mongo connected. Users count = ' + n));
+});
+
 
 //var webhookHandler = createWebhookHandler({ path: '/githook', secret: process.env.secure_hook });
 
@@ -80,12 +100,12 @@ io.configure(function() {
 io.on('connection', function(client) {
 	console.log('IO connected');
 
+		/*    
 	mongoClient.connect(mongo_constr, function (err, db) {
 		assert.equal(null, err);
 
 		// client.emit('update', {a: 100});
 
-		/*    
 		// report
 		findUsers(db, function(users) {
 			for (var key in users) { 
@@ -93,8 +113,8 @@ io.on('connection', function(client) {
 			}
 			db.close();
 		});
-		*/
 	});
+		*/
 
 	client.on('report', function(data) {
 		console.log('Reported ' + JSON.stringify(data));
@@ -103,29 +123,44 @@ io.on('connection', function(client) {
 
 		//console.log('sender_token='+sender_token);
 		//console.log('googleClientId='+googleClientId);
-		
-		authClient.verifyIdToken(
-			sender_token,
-			googleClientId,
-			function(e, login) {
-				var payload = login.getPayload();
-				var aud = payload['aud'];
-				var userid = payload['sub'];
-				//var iat = payload['iat'];
-				//var exp = payload['exp'];
-				// var domain = payload['hd'];
-				console.log('PAYLOAD');
-				console.log(JSON.stringify(payload));
-				//console.log('iat = ' + new Date(iat).toLocaleDateString());
-				//console.log('exp = ' + new Date(exp).toLocaleDateString());
 
-				if (aud==googleClientId && userid>0) {
-					// continue
-					client.broadcast.emit('update', data);
-					client.emit('update', data);
+		console.log('token = ' + sender_token);
+
+		var continuation = function() {
+			// db - upsert user
+			mongo.getDb().collection('users').update({_id:data.taUserId}, {_id:data.taUserId}, {upsert:true});
+			client.broadcast.emit('update', data);
+			// just to test:
+			client.emit('update', data);
+		};
+
+		if (sender_token[0] == '#') {
+			data.taUserId = sender_token;
+			continuation();
+		} else {
+			authClient.verifyIdToken(
+				sender_token,
+				googleClientId,
+				function(e, login) {
+					var payload = login.getPayload();
+					var aud = payload.aud;
+					var userid = payload.sub;
+					//var iat = payload['iat'];
+					//var exp = payload['exp'];
+					// var domain = payload['hd'];
+					console.log('PAYLOAD');
+					console.log(JSON.stringify(payload));
+					//console.log('iat = ' + new Date(iat).toLocaleDateString());
+					//console.log('exp = ' + new Date(exp).toLocaleDateString());
+
+					if (aud==googleClientId && userid>0) {
+						data.taUserId = 'google_' + userid;
+						// continue
+						continuation();
+					}
 				}
-			}
-		);
+			);
+		}
 
 	});
 
