@@ -18,7 +18,12 @@
     "node": ">=v8.9.0",
     "npm": ">=5.5.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^4.11.0",
+    "eslint-plugin-dependencies": "^2.4.0",
+    "mocha": "^4.0.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

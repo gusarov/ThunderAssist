@@ -39,7 +39,7 @@ if (process.env.PORT === undefined) {
 }
 
 // environment
-var mongo_dbname = 'ta';
+//var mongo_dbname = 'ta';
 var mongo_constr = process.env.CUSTOMCONNSTR_mongo;
 // var deployment_branch = (process.env.deployment_branch === undefined ? '_dev_machine' : process.env.deployment_branch);
 // var test = (process.env.deployment_branch === undefined ? 'test' : process.env.deployment_branch).includes('test');

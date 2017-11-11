@@ -1,0 +1,54 @@
+{
+    "env": {
+        "es6": true,
+        "node": true,
+        "mocha": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "plugins": [
+        "dependencies"
+    ],
+    "rules": {
+        "dependencies/case-sensitive": 1,
+        "dependencies/no-cycles": 1,
+        "dependencies/no-unresolved": 1,
+        "dependencies/require-json-ext": 1,
+        "indent": [
+            "warn",
+            "tab",
+            {"SwitchCase": 1}
+        ],
+        "linebreak-style": [
+            "warn",
+            "windows"
+        ],
+        "quotes": [
+            "warn",
+            "single"
+        ],
+        "semi": [
+            "warn",
+            "always"
+        ],
+        "no-console": [
+            "off"
+        ],
+        "no-mixed-spaces-and-tabs": [
+            "warn"
+        ],
+        "no-useless-escape": [
+            "off"
+        ],
+        "no-unused-vars": [
+            "off",
+            {
+                "vars": "all",
+                "varsIgnorePattern": ".*_",
+                "argsIgnorePattern": "(.*_|match|user|resHeaders)"
+            }
+        ]
+    }
+}
