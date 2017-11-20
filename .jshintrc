@@ -1,6 +1,6 @@
 {
   "node": true,
-  "esversion": 6,
+  "esversion": 2017,
   //"curly": true,
   //"latedef": true,
   //"quotmark": true,

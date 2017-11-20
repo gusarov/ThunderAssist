@@ -1,0 +1,22 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es2017",
+		"sourceMap": true,
+		"alwaysStrict": true,
+		"noImplicitReturns": true,
+		"noImplicitAny": true,
+		"pretty": true,
+		"checkJs": true,
+		"outDir": "out",
+		"allowJs": true
+	},
+	"exclude": [
+		"node_modules/",
+		"out/",
+		"typings/"
+	],
+	"include": [
+		"**/*"
+	]
+}

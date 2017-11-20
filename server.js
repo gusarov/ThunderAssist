@@ -1,5 +1,11 @@
 'use strict';
 
+// unhandledRejection are going to become critical anyway
+process.addListener('unhandledRejection', (promise)=>{
+	console.error('unhandledRejection', promise);
+	process.exit(1);
+});
+
 // references
 var fs = require('fs');
 
@@ -13,37 +19,43 @@ if (fs.existsSync('./secret/secret.js')) {
 
 console.log('Load other libraries...');
 
-console.log(' express');
-var express = require('express');
-console.log(' serve-favicon');
-var serveFavicon = require('serve-favicon');
-console.log(' serve-index');
-var directory = require('serve-index');
+//console.log(' express');
+const express = require('express');
+//console.log(' serve-favicon');
+const serveFavicon = require('serve-favicon');
+//console.log(' serve-index');
+const directory = require('serve-index');
 //var createWebhookHandler = require('github-webhook-handler');
 
-console.log(' socket.io');
-var socketio = require('socket.io');
-// var mongoClient = require('mongodb').MongoClient;
-console.log(' mongoUtils');
-var mongo = require('./mongoUtils');
-console.log(' assert');
-var assert = require('assert');
-console.log(' google-auth-library');
-var auth = new (require('google-auth-library'));
+//console.log(' socket.io');
+const socketio = require('socket.io');
 
-var googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
-var authClient = new auth.OAuth2(googleClientId, '', '');
+// var mongoClient = require('mongodb').MongoClient;
+//console.log(' assert');
+const assert = require('assert');
+//console.log(' google-auth-library');
+const auth = new (require('google-auth-library'));
+
+console.log('Load dal');
+const dal = require('./dal');
+const spdy = require('spdy');
+
+const googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
+const authClient = new auth.OAuth2(googleClientId, '', '');
 
 if (process.env.PORT === undefined) {
-	process.env.PORT = 3000;
+	process.env.PORT = '3000';
 }
 
 // environment
 //var mongo_dbname = 'ta';
-var mongo_constr = process.env.CUSTOMCONNSTR_mongo;
+const mongo_constr = process.env.CUSTOMCONNSTR_mongo;
 // var deployment_branch = (process.env.deployment_branch === undefined ? '_dev_machine' : process.env.deployment_branch);
 // var test = (process.env.deployment_branch === undefined ? 'test' : process.env.deployment_branch).includes('test');
-var mongo_layer = process.env.mongo_layer === undefined ? 0 : process.env.mongo_layer | 0;
+if (process.env.mongo_layer === undefined) {
+	process.env.mongo_layer = '0';
+}
+const mongo_layer = parseInt(process.env.mongo_layer);
 
 
 // Test Connection
@@ -58,20 +70,53 @@ mongoClient.connect(mongo_constr, function (err, conn) {
 
 console.log('Connecting mongo...');
 
-mongo.connect(err=>{
-	console.log('Mongo connected. Database = ' + mongo.getDb().databaseName);
-	var n = mongo.getDb().collection('users').count();
-	n.then(n=>console.log('Mongo connected. Users count = ' + n));
-});
+var con = async function (){
+	await dal.connect(mongo_constr);
+	console.log('Mongo connected. Database = ' + dal.getDb().databaseName);
+	var n = await dal.getDb().collection('users').count();
+	console.log('Mongo connected. Users count = ' + n);
+	console.log('Record this start of service...');
+	await dal.getDb().collection('app_log').insert({time: new Date(), message: 'node started'});
+	console.log('Recorded');
+}();
+
 
 
 //var webhookHandler = createWebhookHandler({ path: '/githook', secret: process.env.secure_hook });
 
 var app = express();
- 
+
+//app.get();
+
 var options = {
-	index: "index.htm"
+	index: 'index.htm',
 };
+
+// application middleware
+app.use(function (req, res, next) {
+	// google auth is not working with 127.0.0
+	if (req.headers.host.includes('127.0.0')) {
+		const prot = req.secure ? 'https' : 'http';
+		const port = parseInt(/:(\d+)/.exec(req.headers.host)[1]);
+		res.redirect(`${prot}://localhost:${port}${req.originalUrl}`);
+		return;
+	}
+	/*
+	console.log('My MiddleWare Time:', Date.now());
+	console.log(JSON.stringify(req, (k,v)=>{
+		if (k === 'req') return undefined;
+		if (k === 'res') return undefined;
+		if (k === 'connection') return undefined;
+		if (k === 'socket') return undefined;
+		if (k === 'client') return undefined;
+		if (k === 'parser') return undefined;
+		if (k.startsWith('_')) return undefined;
+		return v;
+	} ,'\t'));
+	*/
+	next();
+});
+
 
 app.use(express.static(__dirname + '/public', options));
 app.use('/files', directory(__dirname + '/public/files', {'icons': true}));
@@ -103,7 +148,7 @@ io.configure(function() {
 io.on('connection', function(client) {
 	console.log('IO connected');
 
-		/*    
+	/*    
 	mongoClient.connect(mongo_constr, function (err, db) {
 		assert.equal(null, err);
 
@@ -131,7 +176,7 @@ io.on('connection', function(client) {
 
 		var continuation = function() {
 			// db - upsert user
-			mongo.getDb().collection('users').update({_id:data.taUserId}, {_id:data.taUserId}, {upsert:true});
+			dal.getDb().collection('users').update({_id:data.taUserId}, {_id:data.taUserId}, {upsert:true});
 			client.broadcast.emit('update', data);
 			// just to test:
 			client.emit('update', data);
@@ -183,10 +228,10 @@ function update(req, res) {
 
 	var sig   = req.headers['x-hub-signature'];
 	if (!sig)
-			return hasError('access denied'); // No X-Hub-Signature found on request
+		return hasError('access denied'); // No X-Hub-Signature found on request
 
 	res.send('OK...');
-	console.log("OK...");
+	console.log('OK...');
 	require('./autodeploy.js');
 }
 /*
@@ -214,3 +259,4 @@ app.get('/server.js/test', function (req, res) {
 app.get('/api/test', function (req, res) {
 	res.send('Express3: /api/test: ' + process.env.PORT);
 });
+

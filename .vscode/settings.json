@@ -1,3 +1,10 @@
 {
-	"mocha.enabled": true
+	"mocha.enabled": true,
+	"files.exclude": {
+		"_**/*.js": { "when": "$(basename).ts"},
+		"node_modules/": true,
+		"typings/": true,
+		"_**/*.map": true
+	},
+	"_typescript.referencesCodeLens.enabled": true
 }

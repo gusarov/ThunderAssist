@@ -1,7 +1,9 @@
-var MongoClient = require( 'mongodb' ).MongoClient;
-var _db;
+const {Db, MongoClient} = require('mongodb');
 
+/** @type {Db} */
+let _db;
 
+/** @param {Db} db @returns {Promise<Db>} */
 function upgrade(db) {
 	if (db === null) db = _db;
 	if (db === undefined) db = _db;
@@ -15,11 +17,12 @@ function upgrade(db) {
 	
 	//db.collection('users')
 	return new Promise(function(resolve){
-		console.log('db upgrade done. %dms', new Date() - start);
+		console.log('db upgrade done. %dms', (new Date() - start));
 		resolve();
 	});
 }
 
+/** @param {Db} db @returns {Promise<Db>} */
 function setup(db) {
 	if (db === null) db = _db;
 	if (db === undefined) db = _db;
@@ -37,10 +40,14 @@ function setup(db) {
 		//.then(()=>db.collection('tran_btc_conf').ensureIndex({singletone: 1}, {unique: true}))
 		//.then(()=>db.collection('transaction_log').ensureIndex({'changes.accountId': 1, 'changes.seqId': 1}, {unique: true}))
 		//.then(()=>db.collection('transaction_log').ensureIndex({'changes.syncing': 1}, {sparse: true}))
-		.then(()=>console.log('db setup done. %dms', new Date() - start))
+		.then(()=> {
+			console.log('db setup done. %dms', new Date() - start)
+			return _db;
+		})
 	;
 }
 
+/** @param {string} url @returns {Promise<Db>} */
 function connectAsync(url) {
 	var start = new Date();
 	console.log('mongo connecting...');
@@ -56,14 +63,24 @@ function connectAsync(url) {
 	});
 }
 
+/** @returns {Db} */
+function getDb() {
+	return _db;
+}
+
+/** @param {string} constr @returns {Promise<Db>} */
+async function connect(constr) {
+	if (!constr) constr = process.env.CUSTOMCONNSTR_mongo;
+	_db = await MongoClient.connect(constr);
+	return _db;
+}
+
 module.exports = {
-	connect: function( callback ) {
-		MongoClient.connect( process.env.CUSTOMCONNSTR_mongo, function( err, db ) {
-			_db = db;
-			return callback( err );
-		} );
-	},
-	getDb: function() {
-		return _db;
-	}
+	getDb: getDb,
+	setup: setup,
+	upgrade: upgrade,
+	connect: connect
 };
+
+
+
