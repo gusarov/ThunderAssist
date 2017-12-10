@@ -22,9 +22,9 @@ console.log('Load other libraries...');
 //console.log(' express');
 const express = require('express');
 //console.log(' serve-favicon');
-const serveFavicon = require('serve-favicon');
+//const serveFavicon = require('serve-favicon');
 //console.log(' serve-index');
-const directory = require('serve-index');
+// const directory = require('serve-index');
 //var createWebhookHandler = require('github-webhook-handler');
 
 //console.log(' socket.io');
@@ -33,12 +33,16 @@ const socketio = require('socket.io');
 // var mongoClient = require('mongodb').MongoClient;
 //console.log(' assert');
 const assert = require('assert');
+const path = require('path');
+const bodyParser = require('body-parser');
 //console.log(' google-auth-library');
 const auth = new (require('google-auth-library'));
 
 console.log('Load dal');
 const dal = require('./dal');
 const spdy = require('spdy');
+
+const exec = require('child_process').exec;
 
 const googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
 const authClient = new auth.OAuth2(googleClientId, '', '');
@@ -49,13 +53,18 @@ if (process.env.PORT === undefined) {
 
 // environment
 //var mongo_dbname = 'ta';
-const mongo_constr = process.env.CUSTOMCONNSTR_mongo;
+const mongo_constr = process.env.CUSTOMCONNSTR_mongo || 'mongodb://localhost/ta_dev';
 // var deployment_branch = (process.env.deployment_branch === undefined ? '_dev_machine' : process.env.deployment_branch);
 // var test = (process.env.deployment_branch === undefined ? 'test' : process.env.deployment_branch).includes('test');
 if (process.env.mongo_layer === undefined) {
 	process.env.mongo_layer = '0';
 }
-const mongo_layer = parseInt(process.env.mongo_layer);
+
+if (process.env.git_hook_key === undefined) {
+	// process.env.git_hook_key = Math.random().toString();
+}
+
+// const mongo_layer = parseInt(process.env.mongo_layer || '100');
 
 
 // Test Connection
@@ -73,7 +82,7 @@ console.log('Connecting mongo...');
 var con = async function (){
 	await dal.connect(mongo_constr);
 	console.log('Mongo connected. Database = ' + dal.getDb().databaseName);
-	var n = await dal.getDb().collection('users').count();
+	var n = await dal.getDb().collection('users').count({});
 	console.log('Mongo connected. Users count = ' + n);
 	console.log('Record this start of service...');
 	await dal.getDb().collection('app_log').insert({time: new Date(), message: 'node started'});
@@ -92,6 +101,30 @@ var options = {
 	index: 'index.htm',
 };
 
+app.use(bodyParser.json());
+
+// dev server fallback (nginx or IIS must be used in prod)
+app.use(express.static(path.join(__dirname, 'dist')));
+// app.use(express.static(__dirname + '/public', options));
+// app.use('/files', directory(__dirname + '/public/files', {'icons': true}));
+//app.use(serveFavicon(__dirname + '/public/favicon.ico'));
+
+var tasks = [
+	{ id: 1, name: 'Go to shop' },
+	{ id: 2, name: 'Milk' },
+	{ id: 3, name: 'Screws' },
+	{ id: 4, name: 'Charger for screwdriver' }
+];
+
+var nextid = 5;
+
+var map = {};
+
+tasks.forEach(element => {
+	map[element.id] = element;
+});
+
+/*
 // application middleware
 app.use(function (req, res, next) {
 	// google auth is not working with 127.0.0
@@ -101,26 +134,9 @@ app.use(function (req, res, next) {
 		res.redirect(`${prot}://localhost:${port}${req.originalUrl}`);
 		return;
 	}
-	/*
-	console.log('My MiddleWare Time:', Date.now());
-	console.log(JSON.stringify(req, (k,v)=>{
-		if (k === 'req') return undefined;
-		if (k === 'res') return undefined;
-		if (k === 'connection') return undefined;
-		if (k === 'socket') return undefined;
-		if (k === 'client') return undefined;
-		if (k === 'parser') return undefined;
-		if (k.startsWith('_')) return undefined;
-		return v;
-	} ,'\t'));
-	*/
 	next();
 });
-
-
-app.use(express.static(__dirname + '/public', options));
-app.use('/files', directory(__dirname + '/public/files', {'icons': true}));
-app.use(serveFavicon(__dirname + '/public/favicon.ico'));
+*/
 
 var server = app.listen(process.env.PORT, function () {
 	var port = server.address().port;
@@ -214,13 +230,13 @@ io.on('connection', function(client) {
 
 });
 
-
-app.post('/api/githook', function (req, res) {
-	update(req, res);
-});
+if (process.env.git_hook_key != undefined) {
+	app.post('/api/githook/'+process.env.git_hook_key, function (req, res) {
+		update(req, res);
+	});
+}
 
 function update(req, res) {
- 
 	function hasError (msg) {
 		res.writeHead(400, { 'content-type': 'application/json' });
 		res.end(JSON.stringify({ error: msg }));
@@ -232,7 +248,8 @@ function update(req, res) {
 
 	res.send('OK...');
 	console.log('OK...');
-	require('./autodeploy.js');
+	exec('schtasks /run /tn:_custom/deploy_ta'); // delegate to priviledged task
+	//require('./autodeploy.js')();
 }
 /*
 app.get('/', function (req, res) {
@@ -260,3 +277,6 @@ app.get('/api/test', function (req, res) {
 	res.send('Express3: /api/test: ' + process.env.PORT);
 });
 
+app.get('/*', function(req, res) {
+	res.sendFile(path.join(__dirname + '/dist/index.html'));
+});

@@ -1,6 +1,7 @@
 const http = require('https');
 const fs = require('fs');
 const extract = require('extract-zip');
+const path = require('path');
 const copydir = require('copy-dir');
 const exec = require('child_process').exec;
 
@@ -17,7 +18,7 @@ const download = function(url, dest, cb) {
 	const request = http.get(url, function(response) {
 		response.pipe(file);
 		file.on('finish', function() {
-			console.log('FINISH');
+			console.log(new Date(), 'FINISH');
 			file.close(cb);
 		});
 	});
@@ -30,9 +31,9 @@ const download = function(url, dest, cb) {
 async function downloadAsync(url, dest) {
 	const file = fs.createWriteStream(dest);
 	const p = new Promise(resolve => {
-		console.log('waiting finish...');
+		console.log(new Date(), 'waiting finish...');
 		file.on('finish', ()=>{
-			console.log('FINISH');
+			console.log(new Date(), 'FINISH');
 			resolve();
 		});
 	});
@@ -42,7 +43,7 @@ async function downloadAsync(url, dest) {
 	response.pipe(file);
 	await p;
 	file.close();
-	console.log('Done...');
+	console.log(new Date(), 'Done...');
 }
 
 
@@ -50,13 +51,17 @@ if (fs.existsSync(zipPath)) {
 	fs.unlinkSync(zipPath);
 }
 
-console.log('Downloading...');
 //*
-var d = async function(){
-	await downloadAsync('https://codeload.github.com/gusarov/ThunderAssist/zip/master', zipPath);
-	exec(zipPath);
+module.exports = async function(){
+	console.log(new Date(), 'Downloading...');
+	if (fs.existsSync(path.join(__dirname, '.git'))) {
+		console.log(new Date(), 'Protection: This folder have a git repo. Script would only work to update standalone deployments.');
+		return;
+	}
+	// await downloadAsync('https://codeload.github.com/gusarov/ThunderAssist/zip/master', zipPath);
+	// exec(zipPath);
 
-	console.log('Extracting...');
+	console.log(new Date(), 'Extracting...');
 	/*
 	extract(zipPath, {dir: extractPath}, function (err) {
 		if (err)
@@ -66,7 +71,7 @@ var d = async function(){
 		console.log('Done');
 	});
 	*/
-}();
+};
 //*/
 /*
 download('https://codeload.github.com/gusarov/ThunderAssist/zip/master', zipPath, function() {

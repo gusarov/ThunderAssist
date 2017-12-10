@@ -1,22 +1,24 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2017",
-		"sourceMap": true,
-		"alwaysStrict": true,
-		"noImplicitReturns": true,
-		"noImplicitAny": true,
-		"pretty": true,
-		"checkJs": true,
-		"outDir": "out",
-		"allowJs": true
-	},
-	"exclude": [
-		"node_modules/",
-		"out/",
-		"typings/"
-	],
-	"include": [
-		"**/*"
-	]
+  "compileOnSave": true,
+  "compilerOptions": {
+    "outDir": "./dist/out-tsc",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+    "checkJs": true,
+    //"noEmit": true,
+    "strict": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2017",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "lib": [
+      "es2017",
+      "dom"
+    ]
+  }
 }

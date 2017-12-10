@@ -1,0 +1,1 @@
+node -e "require('./autodeploy.js')()"

@@ -1,18 +1,141 @@
 {
-	"tslint.enable": true,
-	"tslint.jsEnable": true
+  "rulesDirectory": [
+    "node_modules/codelyzer"
+  ],
+  "rules": {
+    "arrow-return-shorthand": true,
+    "callable-types": true,
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "curly": true,
+    "eofline": true,
+    "forin": true,
+    "import-blacklist": [
+      true,
+      "rxjs",
+      "rxjs/Rx"
+    ],
+    "import-spacing": true,
+    "indent": [
+      true,
+      "tabs"
+    ],
+    "interface-over-type-literal": true,
+    "label-position": true,
+    "max-line-length": [
+      true,
+      140
+    ],
+    "member-access": false,
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "static-field",
+          "instance-field",
+          "static-method",
+          "instance-method"
+        ]
+      }
+    ],
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-console": [
+      true,
+      "debug",
+      "info",
+      "time",
+      "timeEnd",
+      "trace"
+    ],
+    "no-construct": true,
+    "no-debugger": true,
+    "no-duplicate-super": true,
+    "no-empty": false,
+    "no-empty-interface": true,
+    "no-eval": true,
+    "no-inferrable-types": [
+      true,
+      "ignore-params"
+    ],
+    "no-misused-new": true,
+    "no-non-null-assertion": true,
+    "no-shadowed-variable": true,
+    "no-string-literal": false,
+    "no-string-throw": true,
+    "no-switch-case-fall-through": true,
+    "no-trailing-whitespace": true,
+    "no-unnecessary-initializer": true,
+    "no-unused-expression": true,
+    "no-use-before-declare": true,
+    "no-var-keyword": true,
+    "object-literal-sort-keys": false,
+    "one-line": [
+      true,
+      "check-open-brace",
+      "check-catch",
+      "check-else",
+      "check-whitespace"
+    ],
+    "prefer-const": true,
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "radix": true,
+    "semicolon": [
+      true,
+      "always"
+    ],
+    "triple-equals": [
+      true,
+      "allow-null-check"
+    ],
+    "typedef-whitespace": [
+      true,
+      {
+        "call-signature": "nospace",
+        "index-signature": "nospace",
+        "parameter": "nospace",
+        "property-declaration": "nospace",
+        "variable-declaration": "nospace"
+      }
+    ],
+    "typeof-compare": true,
+    "unified-signatures": true,
+    "variable-name": false,
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-separator",
+      "check-type"
+    ],
+    "directive-selector": [
+      true,
+      "attribute",
+      "app",
+      "camelCase"
+    ],
+    "component-selector": [
+      true,
+      "element",
+      "app",
+      "kebab-case"
+    ],
+    "use-input-property-decorator": true,
+    "use-output-property-decorator": true,
+    "use-host-property-decorator": true,
+    "no-input-rename": true,
+    "no-output-rename": true,
+    "use-life-cycle-interface": true,
+    "use-pipe-transform-interface": true,
+    "component-class-suffix": true,
+    "directive-class-suffix": true,
+    "invoke-injectable": true
+  }
 }
-/*
-tslint.jsEnable - enable/disable tslint for .js files, default is false.
-tslint.run - run the linter onSave or onType, default is onType.
-tslint.rulesDirectory - an additional rules directory, for user-created rules.
-tslint.configFile - the configuration file that tslint should use instead of the default tslint.json.
-tslint.ignoreDefinitionFiles - control if TypeScript definition files should be ignored.
-tslint.exclude - configure glob patterns of file paths to exclude from linting. The pattern is matched against the absolute path of the linted file.
-tslint.validateWithDefaultConfig - validate a file for which no custom tslint configuration was found. The default is false.
-tslint.nodePath - custom path to node modules directory, used to load tslint from a different location than the default of the current workspace or the global node modules directory.
-tslint.autoFixOnSave - turns auto fix on save on or off, or defines an array of rules (e.g. [no-var-keyword]) to auto fix on save. Note: Auto-fixing is only done when manually saving a file. It is not performed when the file is automatically saved based on the files.autoSave setting. Executing a manual save on an already-saved document will trigger auto-fixing.
-tslint.alwaysShowStatus - always show the TSLint status bar item and not only when there are errors. The default is false.
-tslint.alwaysShowRuleFailuresAsWarnings - always show rule failures as warnings, ignoring the severity configuration in the tslint.json configuration.
-tslint.packageManager: us
-*/
