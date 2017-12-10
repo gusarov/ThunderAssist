@@ -58,19 +58,18 @@ module.exports = async function(){
 		console.log(new Date(), 'Protection: This folder have a git repo. Script would only work to update standalone deployments.');
 		return;
 	}
-	// await downloadAsync('https://codeload.github.com/gusarov/ThunderAssist/zip/master', zipPath);
-	// exec(zipPath);
+	
+	await downloadAsync('https://codeload.github.com/gusarov/ThunderAssist/zip/master', zipPath);
 
 	console.log(new Date(), 'Extracting...');
-	/*
+
 	extract(zipPath, {dir: extractPath}, function (err) {
 		if (err)
 			console.error(err);
-		console.log('Copying...');
-		copydir.sync(extractPath+'\\ThunderAssist-master', 'C:\\inetpub\\wwwroot');
-		console.log('Done');
+		console.log(new Date(), 'Copying...');
+		copydir.sync(extractPath+'\\ThunderAssist-master', __dirname);
+		console.log(new Date(), 'Done');
 	});
-	*/
 };
 //*/
 /*
@@ -80,7 +79,7 @@ download('https://codeload.github.com/gusarov/ThunderAssist/zip/master', zipPath
 		if (err)
 			console.error(err);
 		//console.log('Copying...');
-		//copydir.sync(extractPath+'\\ThunderAssist-master', 'C:\\inetpub\\wwwroot');
+		//copydir.sync(extractPath+'\\ThunderAssist-master', __dirname);
 		//console.log('Done');
 	});
 });
