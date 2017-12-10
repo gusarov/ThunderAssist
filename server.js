@@ -6,8 +6,8 @@ process.addListener('unhandledRejection', (promise)=>{
 	process.exit(1);
 });
 
-// references
-var fs = require('fs');
+/* FS & Secure */
+const fs = require('fs');
 
 // read secure part that may contain some specific overrides and not stored in source control (connection strings, passwords)
 if (fs.existsSync('./secret/secret.js')) {
@@ -17,32 +17,26 @@ if (fs.existsSync('./secret/secret.js')) {
 	console.log('no overrides');
 }
 
-console.log('Load other libraries...');
-
-//console.log(' express');
+/* REFERENCES */
+const crypto = require('crypto');
 const express = require('express');
-//console.log(' serve-favicon');
+const Request = express.request;
+const Response = express.response;
 //const serveFavicon = require('serve-favicon');
-//console.log(' serve-index');
-// const directory = require('serve-index');
-//var createWebhookHandler = require('github-webhook-handler');
-
-//console.log(' socket.io');
+//const directory = require('serve-index');
 const socketio = require('socket.io');
-
-// var mongoClient = require('mongodb').MongoClient;
-//console.log(' assert');
+//const mongoClient = require('mongodb').MongoClient;
 const assert = require('assert');
 const path = require('path');
 const bodyParser = require('body-parser');
-//console.log(' google-auth-library');
+// const spdy = require('spdy');
+const exec = require('child_process').exec;
 const auth = new (require('google-auth-library'));
 
-console.log('Load dal');
+/* CUSTOM */
 const dal = require('./dal');
-const spdy = require('spdy');
 
-const exec = require('child_process').exec;
+/* CONFIGURE */
 
 const googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
 const authClient = new auth.OAuth2(googleClientId, '', '');
@@ -101,13 +95,23 @@ var options = {
 	index: 'index.htm',
 };
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({verify: (req,res,buf) => req.rawBody=buf}));
 
-// dev server fallback (nginx or IIS must be used in prod)
-app.use(express.static(path.join(__dirname, 'dist')));
 // app.use(express.static(__dirname + '/public', options));
 // app.use('/files', directory(__dirname + '/public/files', {'icons': true}));
 //app.use(serveFavicon(__dirname + '/public/favicon.ico'));
+
+// Add an error-handling Express middleware function to prevent returning sensitive information.
+/*
+app.use(function abortOnError(err, req, res, next) {
+	if (err) {
+		console.log(err);
+		res.status(400).send({ error: 'Invalid signature.' });
+	} else {
+		next();
+	}
+});
+*/
 
 var tasks = [
 	{ id: 1, name: 'Go to shop' },
@@ -230,53 +234,51 @@ io.on('connection', function(client) {
 
 });
 
-if (process.env.git_hook_key != undefined) {
-	app.post('/api/githook/'+process.env.git_hook_key, function (req, res) {
-		update(req, res);
-	});
+if (process.env.git_hook_sec_adr != undefined) {
+	app.post('/api/githook/'+process.env.git_hook_sec_adr, redeploy);
 }
 
-function update(req, res) {
+/** @param {Request} req @param {Response} res */
+function redeploy(req, res) {
+	console.log('redeploy called');
+	/** @param {string} msg */
 	function hasError (msg) {
 		res.writeHead(400, { 'content-type': 'application/json' });
 		res.end(JSON.stringify({ error: msg }));
 	}
 
-	var sig   = req.headers['x-hub-signature'];
-	if (!sig)
-		return hasError('access denied'); // No X-Hub-Signature found on request
+	var hmac = crypto.createHmac('sha1', process.env.git_hook_sec_key || '');
+	hmac.update(req.rawBody, 'utf-8');
+	var shouldSig = 'sha1=' + hmac.digest('hex');
 
+	var requestSig = req.headers['x-hub-signature'];
+	if (!requestSig)
+		return hasError('Access denied. Signature is not provided');
+
+	if (requestSig !== shouldSig) {
+		return hasError('Access denied. Wrong signature.');
+	}
+	
 	res.send('OK...');
 	console.log('OK...');
 	exec('schtasks /run /tn:_custom/deploy_ta'); // delegate to priviledged task
 	//require('./autodeploy.js')();
 }
-/*
-app.get('/', function (req, res) {
-	res.send('PROBLEM Express1: /');
+
+app.get('/api', /** @param {Request} req @param {Response} res */ function (req, res) {
+	res.send('Express: /api');
 });
 
-app.get('/a', function (req, res) {
-	res.send('PROBLEM Express1: /a');
-});
-*/
-app.get('/api', function (req, res) {
-	res.send('Express2: /api');
+app.get('/api/test', /** @param {Request} req @param {Response} res */ function (req, res) {
+	res.send('Express: /api/test: ' + process.env.PORT);
 });
 
-/*
-app.get('/server.js', function (req, res) {
-	res.send('Express2: /server.js');
+app.get('/api/*', /** @param {Request} req @param {Response} res */ function (req, res) {
+	res.send('Express: api call unknown');
 });
 
-app.get('/server.js/test', function (req, res) {
-	res.send('Express3: /server.js/test: ' + process.env.PORT);
-});
-*/
-app.get('/api/test', function (req, res) {
-	res.send('Express3: /api/test: ' + process.env.PORT);
-});
-
-app.get('/*', function(req, res) {
+/** Dev Server - Host Angular & assets from node server too */
+app.use(express.static(path.join(__dirname, 'dist')));
+app.get('/*', /** @param {Request} req @param {Response} res */ function(req, res) {
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
