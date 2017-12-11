@@ -301,8 +301,7 @@ function redeploy(req, res) {
 	/** @param {string} msg */
 	function hasError (msg) {
 		res.writeHead(400, { 'content-type': 'application/json' });
-		res.write(JSON.stringify({ error: msg }));
-		res.end();
+		res.end(JSON.stringify({ error: msg }));
 	}
 
 	var hmac = crypto.createHmac('sha1', process.env.git_hook_sec_key || '');
@@ -331,7 +330,7 @@ app.get('/api', /** @param {Request} req @param {Response} res */ function (req,
 });
 
 app.get('/api/test', /** @param {Request} req @param {Response} res */ function (req, res) {
-	res.send('Express: /api/test: ' + process.env.PORT);
+	res.send('Express: /api/test_x: ' + process.env.PORT);
 });
 
 app.get('/api/*', /** @param {Request} req @param {Response} res */ function (req, res) {
