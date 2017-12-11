@@ -1,3 +1,5 @@
+import { setImmediate } from 'timers';
+
 'use strict';
 
 // unhandledRejection are going to become critical anyway
@@ -299,7 +301,8 @@ function redeploy(req, res) {
 	/** @param {string} msg */
 	function hasError (msg) {
 		res.writeHead(400, { 'content-type': 'application/json' });
-		res.end(JSON.stringify({ error: msg }));
+		res.write(JSON.stringify({ error: msg }));
+		res.end();
 	}
 
 	var hmac = crypto.createHmac('sha1', process.env.git_hook_sec_key || '');
@@ -316,7 +319,10 @@ function redeploy(req, res) {
 	
 	res.send('OK...');
 	console.log('OK...');
-	exec('schtasks /run /tn:_custom/deploy_ta'); // delegate to priviledged task
+
+	setImmediate(function(){
+		exec('schtasks /run /tn:_custom/deploy_ta'); // delegate to priviledged task
+	});
 	//require('./autodeploy.js')();
 }
 
