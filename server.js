@@ -128,6 +128,61 @@ tasks.forEach(element => {
 	map[element.id] = element;
 });
 
+console.log('start');
+/*
+app.set('etag', false);
+app.use(function(req, res, next) {
+	console.log('request');
+	//delete all headers related to cache
+	req.headers['if-none-match'] = '';
+	req.headers['if-modified-since'] = '';
+	next();
+});
+*/
+app.get('/api/tasks', (req, res) => {
+	res.send(JSON.stringify(tasks));
+});
+
+app.get('/api/tasks/:id', (req, res) => {
+	// console.log('get', req.params.id);
+	res.send(JSON.stringify(map[req.params.id]));
+});
+
+app.put('/api/tasks', (req, res) => {
+	// console.log('put', req.baseUrl);
+	// console.log(req.body);
+	//res.send(JSON.stringify(map[req.params.id]));
+	for (var i = 0; i < tasks.length; i++) {
+		if (tasks[i].id === req.body.id) {
+			tasks[i] = req.body;
+		}
+	}
+	map[req.body.id] = req.body;
+	res.sendStatus(204);
+});
+
+app.delete('/api/tasks/:id', (req, res) => {
+	console.log('delete', req.baseUrl);
+	var id = parseInt(req.params.id);
+	for (var i = 0; i < tasks.length; i++) {
+		if (tasks[i].id === id) {
+			tasks.splice(i, 1);
+			break;
+		}
+	}
+	delete map[req.params.id];
+	console.log(tasks);
+	console.log(map);
+	res.sendStatus(204);
+});
+
+app.post('/api/tasks', (req, res) => {
+	req.body.id = nextid++;
+	map[req.body.id] = req.body;
+	tasks.push(req.body);
+	res.send(req.body);
+});
+
 /*
 // application middleware
 app.use(function (req, res, next) {
