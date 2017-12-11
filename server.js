@@ -1,5 +1,3 @@
-import { setImmediate } from 'timers';
-
 'use strict';
 
 // unhandledRejection are going to become critical anyway
