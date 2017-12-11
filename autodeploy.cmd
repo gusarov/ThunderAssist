@@ -1,1 +1,1 @@
-node -e "require('./autodeploy.js')()"
+node -e "require('./autodeploy.js')()" >> autodeploy.log
