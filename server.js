@@ -47,7 +47,6 @@ if (process.env.PORT === undefined) {
 
 // environment
 //var mongo_dbname = 'ta';
-const mongo_constr = process.env.CUSTOMCONNSTR_mongo || 'mongodb://localhost/ta_dev';
 // var deployment_branch = (process.env.deployment_branch === undefined ? '_dev_machine' : process.env.deployment_branch);
 // var test = (process.env.deployment_branch === undefined ? 'test' : process.env.deployment_branch).includes('test');
 if (process.env.mongo_layer === undefined) {
@@ -74,7 +73,9 @@ mongoClient.connect(mongo_constr, function (err, conn) {
 console.log('Connecting mongo...');
 
 var con = async function (){
-	await dal.connect(mongo_constr);
+	await dal.connect();
+	await dal.upgrade();
+	await dal.setup();
 	console.log('Mongo connected. Database = ' + dal.getDb().databaseName);
 	var n = await dal.getDb().collection('users').count({});
 	console.log('Mongo connected. Users count = ' + n);
@@ -111,7 +112,6 @@ app.use(function abortOnError(err, req, res, next) {
 		next();
 	}
 });
-*/
 
 var tasks = [
 	{ id: 1, name: 'Go to shop' },
@@ -127,6 +127,7 @@ var map = {};
 tasks.forEach(element => {
 	map[element.id] = element;
 });
+*/
 
 console.log('start');
 /*
@@ -139,25 +140,33 @@ app.use(function(req, res, next) {
 	next();
 });
 */
-app.get('/api/tasks', (req, res) => {
-	res.send(JSON.stringify(tasks));
+app.get('/api/tasks', async (req, res) => {
+	const tasks = await dal.modelTask.find();
+	console.log(`get tasks`, tasks);
+	res.send(tasks);
 });
 
-app.get('/api/tasks/:id', (req, res) => {
-	// console.log('get', req.params.id);
-	res.send(JSON.stringify(map[req.params.id]));
+app.get('/api/tasks/:id', async (req, res) => {
+	console.log(`get task ${req.params.id}`);
+	const task = await dal.modelTask.findOne({id:req.params.id});
+	console.log(task);
+	res.send(JSON.stringify(task));
 });
 
-app.put('/api/tasks', (req, res) => {
-	// console.log('put', req.baseUrl);
+app.put('/api/tasks', async (req, res) => {
+	console.log('put', req.body, typeof(req.body));
+	var task = await dal.modelTask.findByIdAndUpdate(req.body._id, req.body);
+	console.log(task);
 	// console.log(req.body);
 	//res.send(JSON.stringify(map[req.params.id]));
+	/*
 	for (var i = 0; i < tasks.length; i++) {
 		if (tasks[i].id === req.body.id) {
 			tasks[i] = req.body;
 		}
 	}
 	map[req.body.id] = req.body;
+	*/
 	res.sendStatus(204);
 });
 
@@ -176,11 +185,19 @@ app.delete('/api/tasks/:id', (req, res) => {
 	res.sendStatus(204);
 });
 
-app.post('/api/tasks', (req, res) => {
+app.post('/api/tasks', async (req, res) => {
+
+	var newTask = new dal.modelTask(req.body);
+	newTask.id = await dal.getNextSequence('task');
+	await newTask.save();
+	console.log('saved',newTask);
+
+	/*
 	req.body.id = nextid++;
 	map[req.body.id] = req.body;
 	tasks.push(req.body);
-	res.send(req.body);
+	*/
+	res.send(newTask);
 });
 
 /*
