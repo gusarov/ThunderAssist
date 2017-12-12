@@ -302,6 +302,8 @@ function redeploy(req, res) {
 		res.end(JSON.stringify({ error: msg }));
 	}
 
+	console.log(req.body);
+
 	var hmac = crypto.createHmac('sha1', process.env.git_hook_sec_key || '');
 	hmac.update(req.rawBody, 'utf-8');
 	var shouldSig = 'sha1=' + hmac.digest('hex');
