@@ -313,14 +313,18 @@ function redeploy(req, res) {
 	if (requestSig !== shouldSig) {
 		return hasError('Access denied. Wrong signature.');
 	}
-	
-	res.send('OK...');
-	console.log('OK...');
 
-	setImmediate(function(){
-		exec('schtasks /run /tn:_custom/deploy_ta'); // delegate to priviledged task
+	// delegate to priviledged task
+	exec('%SystemDrive%\\apps\\EventLogTrigger 20202', (err, stdout, stderr)=> {
+		if (err) {
+			console.error(`${err} ${stdout} ${stderr}`);
+			res.status(405).send(`${err} ${stdout} ${stderr}`);
+			return;
+		}
+		console.log(stdout);
+		res.send('OK...');
+		console.log('OK...');
 	});
-	//require('./autodeploy.js')();
 }
 
 app.get('/api', /** @param {Request} req @param {Response} res */ function (req, res) {
