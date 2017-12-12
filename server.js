@@ -332,7 +332,7 @@ app.get('/api', /** @param {Request} req @param {Response} res */ function (req,
 });
 
 app.get('/api/test', /** @param {Request} req @param {Response} res */ function (req, res) {
-	res.send('Express: /api/test_2: ' + process.env.PORT);
+	res.send('Express: /api/test_3: ' + process.env.PORT);
 });
 
 app.get('/api/*', /** @param {Request} req @param {Response} res */ function (req, res) {
