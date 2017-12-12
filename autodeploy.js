@@ -40,7 +40,7 @@ function log(str) {
 
 module.exports = function(){
 	log(`Downloading to ${zipPath} ...`);
-	downloadSync('https://codeload.github.com/gusarov/ThunderAssist/zip/master', zipPath, ()=>{
+	downloadSync('https://github.com/gusarov/ThunderAssist/archive/master.zip', zipPath, ()=>{
 		log(`Extracting to ${extractPath} ...`);
 		extract(zipPath, {dir: extractPath}, function (err) {
 			if (err) console.error(err);
