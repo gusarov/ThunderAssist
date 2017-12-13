@@ -6,13 +6,13 @@
 		<title>Tour of Tasks</title>
 		
 		<meta name='google-signin-client_id' content='521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com'>
-		<meta name="google-signin-fetch_basic_profile" content="false">
-		<meta name='google-signin-scope' content='profile'>
+		<meta name="google-signin-fetch_basic_profile" content="true">
+		<meta name='google-signin-scope' content='profile email'>
 		<!-- favicon -->
 		<link rel='SHORTCUT ICON' href='favicon.ico' />
 		<link rel='icon' type='image/x-icon' href='favicon.ico'>
 		<!-- css -->
-		<link href='main.css' rel='stylesheet' type='text/css' />
+		<link href='assets/main.css' rel='stylesheet' type='text/css' />
 		<!-- FONTS
 		<link rel='stylesheet' href='//fonts.googleapis.com/css?family=Anton:n,b,i,bi|Basic:n,b,i,bi|Caudex:n,b,i,bi|Chelsea+Market:n,b,i,bi|Corben:n,b,i,bi|EB+Garamond:n,b,i,bi|Enriqueta:n,b,i,bi|Forum:n,b,i,bi|Fredericka+the+Great:n,b,i,bi|Jockey+One:n,b,i,bi|Josefin+Slab:n,b,i,bi|Jura:n,b,i,bi|Kelly+Slab:n,b,i,bi|Marck+Script:n,b,i,bi|Lobster:n,b,i,bi|Mr+De+Haviland:n,b,i,bi|Niconne:n,b,i,bi|Noticia+Text:n,b,i,bi|Overlock:n,b,i,bi|Patrick+Hand:n,b,i,bi|Play:n,b,i,bi|Sarina:n,b,i,bi|Signika:n,b,i,bi|Spinnaker:n,b,i,bi|Monoton:n,b,i,bi|Sacramento:n,b,i,bi|Cookie:n,b,i,bi|Raleway:n,b,i,bi|Open+Sans+Condensed:300:n,b,i,bi|Amatic+SC:n,b,i,bi|Cinzel:n,b,i,bi|Sail:n,b,i,bi|Playfair+Display:n,b,i,bi|Libre+Baskerville:n,b,i,bi|&amp;subset=latin-ext,cyrillic,japanese,korean,arabic,hebrew,latin' id='font_googleFonts' />
 		<meta name='viewport' content='width=device-width, initial-scale=1'>
@@ -20,13 +20,22 @@
 		<!-- references -->
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js'></script>
 		<script src='https://apis.google.com/js/platform.js' async defer></script>
-		<script src='client.js' async defer></script>
+		<script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js'></script>
 		<!--
 		<script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>
 		<script src='https://cdn.rawgit.com/konvajs/konva/1.6.3/konva.min.js'></script>
 		-->
+		<script src='assets/client.js' async defer></script>
 	</head>
 	<body>
 		<app-root></app-root>
+		<div class='signin'>
+			<div id='g-signin2' class='g-signin2' data-onsuccess='onSignIn' data-theme='dark' ></div>
+			<div id='signOut' style='display: none;'>
+				<span id='userName'></span>
+				<a href='#' onclick='signOut();' style='margin: 5px 5px 5px 5px '>Sign&nbsp;out</a>
+			</div>
+		</div>
 	</body>
 </html>

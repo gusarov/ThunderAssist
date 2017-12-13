@@ -1,9 +1,5 @@
-var divall;
-var divkonva;
 var signedIn = false;
 var started = false;
-var models;
-var layer;
 var socket;
 var id_token;
 var googleClientId = '521830143322-shvg9lc373l28r4etj4u25i3gi34hkjg.apps.googleusercontent.com';
@@ -33,8 +29,8 @@ gapi.load('auth2', function() {
 
 window.onload = function() {
 
-	divall = document.getElementById('all');
-	divkonva = document.getElementById('konva');
+	//divall = document.getElementById('all');
+	//divkonva = document.getElementById('konva');
 	socket = io(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/', {
 		transports: [ 'websocket' ],
 	});
@@ -44,10 +40,10 @@ window.onload = function() {
 	});
 
 	// divkonva.addEventListener('mousemove', mousemove);
-	document.addEventListener('keydown', doc_keyDown, false);
+	// document.addEventListener('keydown', doc_keyDown, false);
 
 
-	ready();
+	//ready();
 	/*
 <div class='header'>
 	<div class='header_strip'>
@@ -150,7 +146,7 @@ function signOut() {
 function onSignIn(googleUser) {
 	// Useful data for your client-side scripts:
 	signedIn = true;
-	ready();
+	//ready();
 	var profile = googleUser.getBasicProfile();
 	if (profile != null) {
 		console.log('ID: ' + profile.getId()); // Don't send this directly to your server!
@@ -169,11 +165,13 @@ function onSignIn(googleUser) {
 	document.getElementById('g-signin2').setAttribute('style', 'visibility: collapse');
 	*/
 
-	document.getElementById('bar').className = 'top_right';
-	document.getElementById('all').classList.remove('bgg');
+	//document.getElementById('bar').className = 'top_right';
+	//document.getElementById('all').classList.remove('bgg');
+
+	document.getElementById('userName').innerHTML = profile.getName() || profile.getId();
 
 	document.getElementById('g-signin2').style.display = 'none';
-	document.getElementById('signInDemo').style.display = 'none';
+	//document.getElementById('signInDemo').style.display = 'none';
 	document.getElementById('signOut').style.display = 'inline';
 
 
@@ -182,7 +180,7 @@ function onSignIn(googleUser) {
 	console.log('ID Token: ' + id_token);
 }
 
-function ready() {
+function ready_() {
 	if (!started && signedIn) {
 		started = true;
 		//
