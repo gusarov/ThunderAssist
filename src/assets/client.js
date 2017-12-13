@@ -28,7 +28,6 @@ gapi.load('auth2', function() {
 */
 
 window.onload = function() {
-
 	//divall = document.getElementById('all');
 	//divkonva = document.getElementById('konva');
 	socket = io(window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/', {

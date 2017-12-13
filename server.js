@@ -32,6 +32,7 @@ const bodyParser = require('body-parser');
 // const spdy = require('spdy');
 const exec = require('child_process').exec;
 const auth = new (require('google-auth-library'));
+const jwt = require('express-jwt');
 
 /* CUSTOM */
 const dal = require('./dal');
@@ -140,6 +141,7 @@ app.use(function(req, res, next) {
 	next();
 });
 */
+
 app.get('/api/tasks', async (req, res) => {
 	const tasks = await dal.modelTask.find();
 	console.log(`get tasks`, tasks);
