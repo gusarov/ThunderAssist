@@ -172,18 +172,10 @@ app.put('/api/tasks', async (req, res) => {
 	res.sendStatus(204);
 });
 
-app.delete('/api/tasks/:id', (req, res) => {
+app.delete('/api/tasks/:id', async (req, res) => {
 	console.log('delete', req.baseUrl);
 	var id = parseInt(req.params.id);
-	for (var i = 0; i < tasks.length; i++) {
-		if (tasks[i].id === id) {
-			tasks.splice(i, 1);
-			break;
-		}
-	}
-	delete map[req.params.id];
-	console.log(tasks);
-	console.log(map);
+	var task = await dal.modelTask.remove({id:id});
 	res.sendStatus(204);
 });
 
