@@ -77,15 +77,12 @@ var con = async function (){
 	await dal.connect();
 	await dal.upgrade();
 	await dal.setup();
-	console.log('Mongo connected. Database = ' + dal.getDb().databaseName);
-	var n = await dal.getDb().collection('users').count({});
-	console.log('Mongo connected. Users count = ' + n);
+	console.log(`Mongo connected. Database = ${dal.getDb().databaseName}`);
+	console.log(`Mongo connected. Users count = ${await dal.getDb().collection('users').count({})} `);
 	console.log('Record this start of service...');
 	await dal.getDb().collection('app_log').insert({time: new Date(), message: 'node started'});
 	console.log('Recorded');
 }();
-
-
 
 //var webhookHandler = createWebhookHandler({ path: '/githook', secret: process.env.secure_hook });
 
